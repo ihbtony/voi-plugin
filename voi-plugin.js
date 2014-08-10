@@ -3,9 +3,9 @@
     $.fn.voi = function( options ) {
 
     	var $this = $(this).attr('id');
-    	
+
     	var settings = $.extend({
-            title       : null,
+            url      : null,
             users    	: null,
             vote 		: null,
             token 		: null,
@@ -14,7 +14,7 @@
 
         $.post('http://www.voteoverit.com/api_hook.php', 
     		{token : settings.token,
-    		  title : settings.title}).done(function(data) {
+    		  title : settings.url}).done(function(data) {
     		  	console.log(data);
     		  	$("#voi_wrapper").html(data);
     	});    
@@ -24,7 +24,7 @@
             console.log('testp');
 			$.post('http://www.voteoverit.com/api_hook.php', 
     		 {token : settings.token,
-    		  title : settings.title,
+    		  title : settings.url,
     		  vote: settings.vote,
     		  users: settings.users}).done(function(data) {
 
@@ -42,7 +42,7 @@
              console.log('testn');
 			$.post('http://www.voteoverit.com/api_hook.php', 
     		  {token : settings.token,
-    		  title : settings.title,
+    		  title : settings.url,
     		  vote: settings.vote,
     		  users: settings.users}).done(function(data) {
 
