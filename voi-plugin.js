@@ -15,20 +15,17 @@
         $.post('http://www.voteoverit.com/api_hook.php', 
     		{token : settings.token,
     		  title : settings.url}).done(function(data) {
-    		  	console.log(data);
     		  	$("#voi_wrapper").html(data);
     	});    
 
     	$('#' + $this).on("click",".positive", function () {
 
-            console.log('testp');
-			$.post('http://www.voteoverit.com/api_hook.php', 
+	   $.post('http://www.voteoverit.com/api_hook.php', 
     		 {token : settings.token,
     		  title : settings.url,
     		  vote: settings.vote,
     		  users: settings.users}).done(function(data) {
 
-    		  	console.log(data);
     		  	$(".votebuttons").html(data);
 
     		  });
@@ -39,14 +36,12 @@
         //negative
         $('#' + $this).on("click",".negative", function () {
 
-             console.log('testn');
-			$.post('http://www.voteoverit.com/api_hook.php', 
+		$.post('http://www.voteoverit.com/api_hook.php', 
     		  {token : settings.token,
     		  title : settings.url,
     		  vote: settings.vote,
     		  users: settings.users}).done(function(data) {
 
-    		  	console.log(data);
     		  	$(".votebuttons").html(data);
 
     		  });
