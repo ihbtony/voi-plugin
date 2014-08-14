@@ -2,8 +2,8 @@
 
     $.fn.voi = function( options ) {
 
-    	var $this = $(this).attr('id');
-
+    	var $this = $(this);
+	
     	var settings = $.extend({
             url      : null,
             users    	: null,
@@ -33,7 +33,7 @@
 
         });
         //negative
-        $('#' + $this).on("click",".negative", function () {
+        $('#' + $this.attr('id')).on("click",".negative", function () {
 
 			$.post('http://www.voteoverit.com/connect/api_hook.php', 
     		  {token : settings.token,
