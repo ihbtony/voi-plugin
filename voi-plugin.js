@@ -12,15 +12,14 @@
         }, options);
 
 
-        $.post('http://www.voteoverit.com/api_hook.php', 
+        $.post('http://www.voteoverit.com/connect/api_hook.php', 
     		{token : settings.token,
     		  title : settings.url}).done(function(data) {
     		  	$("#voi_wrapper").html(data);
     	});    
 
     	$('#' + $this).on("click",".positive", function () {
-
-	   $.post('http://www.voteoverit.com/api_hook.php', 
+			$.post('http://www.voteoverit.com/connect/api_hook.php', 
     		 {token : settings.token,
     		  title : settings.url,
     		  vote: settings.vote,
@@ -36,7 +35,7 @@
         //negative
         $('#' + $this).on("click",".negative", function () {
 
-		$.post('http://www.voteoverit.com/api_hook.php', 
+			$.post('http://www.voteoverit.com/connect/api_hook.php', 
     		  {token : settings.token,
     		  title : settings.url,
     		  vote: settings.vote,
