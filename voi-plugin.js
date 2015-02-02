@@ -41,7 +41,7 @@
 		//end fancybox script
 
          //submit debate
-        $('#' + settings.debate_form.attr('id')).on("click", "#new_debate", function() {
+        $(document).on("click", "#new_debate", function() {
 
             if( $("#description_background").val() == '') {
                 $('#' + settings.debate_form.attr('id')).append('<p style="color:red">Please add a description</p>');
@@ -64,7 +64,7 @@
 
             body += '<br/>' + $("#opinion").val();
             console.log(body);
-            $.post('http://www.voteoverit.com/connect/api_hook.php', 
+            $.post('http://www.voteoverit.com/connect/debate_display.php', 
                     { 
 
                       body: body,
@@ -98,35 +98,21 @@
         }, options);
 
 
-        $.post('http://www.voteoverit.com/connect/api_hook.php', 
-    		{token : settings.token,
-    		  title : settings.url}).done(function(data) {
+        $.post('http://www.voteoverit.com/connect/debate_display.php', 
+    		{ token : settings.token,
+    		  title : settings.url,
+          user  : settings.users }).done(function(data) {
     		  	$this.html(data);
     	});    
 
-    	$('#' + $this.attr('id')).on("click",".positive", function () {
-            console.log('pos vote');
-			$.post('http://www.voteoverit.com/connect/api_hook.php', 
-    		 {token : settings.token,
-    		  title : settings.url,
-    		  vote: 1,
-    		  users: settings.users}).done(function(data) {
-                console.log(data);
-    		  	$(".votebuttons").html(data);
-
-    		  });
-
-            return;
-
-        });
         //negative
-        $('#' + $this).on("click",".negative", function () {
+        $(document).on("click",".negButton", function () {
             console.log('neg vote');
 			$.post('http://www.voteoverit.com/connect/api_hook.php', 
     		  {token : settings.token,
     		  title : settings.url,
     		  vote: 0,
-    		  users: settings.users}).done(function(data) {
+    		  user: settings.users}).done(function(data) {
 console.log(data);
     		  	$(".votebuttons").html(data);
 
@@ -134,6 +120,335 @@ console.log(data);
             
             return;
         });
+
+  $(document).on("click", ".userCommentEdit", function() {
+  //$(".userCommentEdit").click(function() {
+
+    console.log('user comment edit clicked');
+
+    console.log( $(this).text() );
+var ele = $(this).attr('id').split('-');
+    if( $(this).text() == 'EDIT') {
+
+      console.log('element id:' + ele);
+      console.log('value text = Edit');
+
+      var ele = $(this).attr('id').split('-');
+      $( "#pollText_" + ele[2] ).hide();
+
+      $(this).text('SAVE');
+      $('.userCommentText').hide();
+      $("#comment_" + ele[2]).show(); //show textbox with existing text for editing
+
+    } else if($(this).text() == 'SAVE') {
+      
+      //update
+      console.log($(this).attr('id'));
+      ele = $(this).attr('id').split('-');
+      console.log(ele[0]);
+
+      var $this = $(this);
+
+      $.post("http://www.voteoverit.com/API/polls/edit", { 
+
+        id: ele[2],
+        Updated: "",
+        pollText : $("#comment_" + ele[2]).val(),
+        user : settings.users
+
+      }).done(function(data) {
+
+        console.log('edit data:' + data);
+        if(data == 'Poll Saved') {
+          $(".addCommentDiv").html('<div class="userCommentDiv" id="userCommentDiv_60" style="display: inline-block;"><div class="debateImageDiv latter" style="margin-top:2px; float:left;"><a href="http://www.voteoverit.com/myprofile/history.php?user=3"><img id="debateImage" src="http://www.voteoverit.com/member/profileImages/3.jpg" style="height:40px;"></a></div><div id="comment_3" style="float:left; width:300px;"><span class="userCommentText" id="pollText_60">' + $("#comment_" + ele[2]).val() + '<font class=""></font></span><textarea type="text" class="addCommentText" id="comment_60" style="display:none; height:78px; min-width:320px; max-width:280px; margin:0px 6px;">' + $("#comment_" + ele[2]).val() + '</textarea></div><div style="float:right"><button class="userCommentEdit" id="comment-3-60">EDIT</button><br><button class="userCommentRemove" id="remove-3-60" style="">REMOVE</button></div><br></div>');
+            //$("#comment_" + ele[2]).val() );
+          $(".addCommentDiv").show();
+          $('.userCommentText').html( $("#comment_" + ele[2]).val() );
+          $('.userCommentText').show();
+        } 
+                                              
+
+
+        $("#comment_" + ele[2]).hide(); 
+        console.log($("#comment_" + ele[2]).val());
+
+        //redisplay polltext and put in the comment contents
+        $( "#pollText_" + ele[2] ).html( $("#comment_" + ele[2]).val() + " (SAVED)");
+        $( "#pollText_" + ele[2] ).show();
+
+      }); 
+
+      $(this).text('EDIT');
+
+    }
+
+  });
+
+  //for remove button
+    $(document).on("click", ".userCommentRemove", function() {
+      console.log('User comment remove');
+      
+      var ele = $(this).attr('id').split('-');
+      $.post("http://www.voteoverit.com/API/polls/edit", { 
+
+        id: ele[2],
+        Updated: "",
+        pollText : ''
+
+      }).done(function(data) {
+
+        console.log('data:' + data);
+        $("#userCommentDiv_" + ele[2]).remove();
+
+        $(".addCommentDiv").html('<div class="userCommentDiv" id="userCommentDiv_60" style="display: inline-block;"><div class="debateImageDiv latter" style="margin-top:2px; float:left;"><a href="http://www.voteoverit.com/myprofile/history.php?user=3"><img id="debateImage" src="http://www.voteoverit.com/member/profileImages/3.jpg" style="height:40px;"></a></div><div id="comment_3" style="float:left; width:300px;"><span class="userCommentText" id="pollText_60"><font class=""></font></span><textarea type="text" class="addCommentText" id="comment_60" style="display:none; height:78px; min-width:320px; max-width:280px; margin:0px 6px;"></textarea></div><div style="float:right"><button class="userCommentEdit" id="comment-3-60">EDIT</button><br><button class="userCommentRemove" id="remove-3-60" style="">REMOVE</button></div><br></div>');
+
+          console.log('parent append!');
+
+      }); 
+  });
+  $(".voi-bookmark").click(function() {
+
+      $(this).css("color" , "#48D8DC")
+      $("#messageMessage").html("<span class='influence'>Bookmarked</span> Debate for later!<br>");
+      //$("#message" ).show("slide", {direction: "right"}, 500, callbackMessage );
+
+  });
+
+
+  $(document).on("click", ".addCommentButton", function() {
+
+    console.log('add comment clicked');
+
+      console.log($(this).attr('id'));
+      var ele = $(this).attr('id').split('-');
+      console.log(ele[0]);
+
+      issue_id = ele[1];
+      vote = ele[2];
+      $this = $(this);
+      console.log(issue_id + "\r\n" + 'vote:' + vote + "\r\n" + settings.users + "\r\n" + $("#comment_" + issue_id).val());
+
+    $.post("http://www.voteoverit.com/API/polls/add", { 
+
+          user: settings.users,
+          issue_id: issue_id,
+          Created : "", 
+          pollText : $("#comment_" + issue_id).val(),
+          vote: vote 
+
+      }).done(function(data) { 
+        console.log( ' return from add comment:' + data);
+        var return_data = $.parseJSON(data);
+        PollID = return_data.PollID; //poll id from insert returned
+        if(return_data.message != 'Problem saving opinion') {
+          console.log("comment saved");
+
+          $("#bar_" + issue_id).append("<div class='userCommentDiv' id='userCommentDiv_" + PollID + "' style='display:inline-block;'><div class='debateImageDiv latter' style='margin-top:2px; float:left;'><img id='debateImage' src='http://www.voteoverit.com/member/profileImages/6307.jpg' style='height:40px;'/></div><div id='comment_" + issue_id + "' style='float:left; width:340px;'><span class='userCommentText' id=''>" + $('#comment_' + issue_id).val() + "<font class=''></font> -  <font class=''> (ADDED) </font></span><textarea type='text' class='addCommentText' id='comment_" + PollID + "' style='display:none; height:78px; min-width:320px; max-width:320px; margin:0px 6px;'>" + $('#comment_' + issue_id).val() + "</textarea></div><div style='float:right;'><button class='userCommentEdit' id='comment-" + issue_id + "-" + PollID + "'>EDIT</button><br><button class='userCommentRemove' id='remove-" + issue_id + "-" + PollID + "' style=''>REMOVE</button></div><br></div>");
+
+
+            $(".addCommentDiv").remove(); //remove add comment div and start using UserCommentDiv since they now have an existing comment in place
+
+        } 
+
+      }); 
+
+    });
+
+    $(document).on("click", ".addCommentCancel", function() {
+        $(this).parent().hide();
+    });
+
+  $(document).on("click", ".userComment", function() {
+    $(this).next('.addCommentDiv').slideToggle(300, 'linear');
+    $('.userCommentDiv').show();
+  });
+  //for comments
+
+  $(document).on('click', '.voi-plus', function() {
+
+  console.log('add comment vote');
+
+      var id = $(this).attr("id").split("_")
+      var elementID = id[1];
+      var $this = $(this);
+      console.log(elementID + 'comment positive');
+      $.post("http://www.voteoverit.com/API/Polls/vote/1/" + elementID + "/" + settings.users, 
+      {   user: settings.users,
+          id: elementID,
+          vote: 1 }).done(function(data) {
+
+                console.log(data);
+                if ((data) == "Already voted on this opinion!") {
+                    console.log('already voted');
+                } else {
+            $this.addClass("voi-plus-fill");
+            $this.removeClass("voi-plus");
+            $("#messageMessage").html("<span class='influence'>+1pt</span> For Comment Vote<br>");
+            //$("#message" ).show(1000, "swing", callbackMessage );
+            }
+      });
+
+   });  
+    
+    $(document).on('click', '.voi-minus', function() {
+
+    var id = $(this).attr("id").split("_")
+    var elementID = id[1];
+    var $this = $(this);
+            console.log(elementID);
+      $.post("http://www.voteoverit.com/API/Polls/vote/0/" + elementID + "/" + settings.users, 
+      {   user: settings.users,
+          id: elementID,
+          vote: 0 }).done(function(data) {
+        console.log(data);
+        if ((data) == "Already voted on this opinion!") {
+            console.log('already voted on comment');
+        } else {
+          $this.addClass("voi-minus-fill");
+          $this.removeClass("voi-minus");
+          $("#messageMessage").html("<span class='influence'>+1pt</span> For Comment Vote<br>");
+          //$("#message" ).show(1000, "swing", callbackMessage );
+        }
+      });
+
+   });
+
+     $(document).on('click', '.posButton', function() {
+
+      var element = $(this).attr("id").split("_");
+      var id = element[2];
+
+    $.post('http://www.voteoverit.com/connect/api_hook.php', 
+             {token : settings.token,
+              title : settings.url,
+              vote: 1,
+              user: settings.users}).done(function(data) {       
+
+        if ( data == 'Already voted' || data == 'Vote Not Saved') {
+            
+            console.log('already voted on issue');
+
+            //we're passing back the login stuff here because we don't have a valid email associated with this user id
+        } else if( data.indexOf("<div class='signin'") >= 0) {
+
+          $('.votebuttons').hide();
+          $('.votingArea').prepend(data); ///append the html for them to add an email
+
+        } else {
+
+                  //$("#message" ).show(1000, "swing", callbackMessage );  
+                  $("#bar_" + id).show();
+                  $("#neg_utton_" + id).remove();
+                  $this.css({"width" : "100%", "text-align" : "center"});
+          }
+        }); 
+
+  });
+
+  //negative button click
+       $(document).on('click', '.negButton', function() {
+
+        var element = $(this).attr("id").split("_");
+        id = element[2];
+        console.log('neg buttonc licked');
+    $.post('http://www.voteoverit.com/connect/api_hook.php', 
+             {token : settings.token,
+              title : settings.url,
+              vote: 0,
+              user: settings.users}).done(function(data) {       
+
+        if ( data == 'Already voted' || data == 'Vote Not Saved') {
+            
+                console.log('already voted');
+
+            //we're passing back the login stuff here because we don't have a valid email associated with this user id
+        } else if( data.indexOf("<div class='signin'") >= 0) {
+
+          $('.votebuttons').hide();
+          $('.votingArea').prepend(data);  ///append the html for them to add an email
+          
+        } else {
+
+                 // $("#message").show(1000, "swing", callbackMessage );  
+                  $("#bar_" + id).show();
+                  $("#pos_button_" + id).remove();
+                  $this.css({"width" : "100%", "text-align" : "center"});
+          }
+    }); 
+
+  });
+
+  //for new email add
+  $(document).on('click', '#save_email', function() {
+
+    var updates = 0;
+
+    if ( $( $("#updates") ).prop( "checked" ) ) {
+      var updates = 1;
+    }
+
+    $.post('http://www.voteoverit.com/connect/api_hook.php', 
+        { update : updates,
+          user_id : $("#user_id").val(),
+          email : $("#email").val()
+          }).done(function(data) {
+
+            console.log(data);
+      $(".signin").hide();
+      $(".votebuttons").show();
+
+    });
+
+  });
+
+  //for login info if user is not logged in. logged in is indicated by having a valid email
+
+  $(document).on('click', '#toggleView', function() {
+    $(".voi-angle-right").toggleClass(function(){
+      return "voi-angle-down";
+    });
+
+  });
+
+ // $(".addLinkDiv").hide();
+ // $(".linkAdd").click(function() {
+ //   $(this).prev(".addLinkDiv").slideToggle(300, "linear");
+  //  $(this).html("+ DONE");  // USE THIS TO ADD A LINK TO THE DEBATE // NEED TO RESET THE FORM AFTER
+ //   $(this).next(".linkCancel").html("x CANCEL");
+//  });
+
+ // $(".addCommentDiv").hide();
+
+  $(document).on('click', '.addComment', function() {
+    $(this).next(".addCommentDiv").slideToggle(300, "linear");
+  });
+
+  //$(".userCommentDiv").hide();
+
+  $(document).on('click', '.userComment', function() {
+    $(this).next(".userCommentDiv").slideToggle(300, "linear");
+  });
+
+  // $('.CollapsibleSunlight').hide();
+
+  //$('.CollapsibleLinks').hide();
+ // $('.CollapsibleComments').hide();
+
+ $(document).on('click', '.CollapsibleTab', function() {
+    $(this).next('.CollapsibleComments').slideToggle(300, 'linear');
+
+    if($(this).hasClass('ten')) {
+
+      $(this).html($(this).html() == "HIDE THESE COMMENTS" ? "SHOW MORE COMMENTS" : "HIDE THESE COMMENTS");
+
+    } else {
+
+      $(this).html($(this).html() == "HIDE ALL COMMENTS" ? "SHOW LEADING COMMENTS" : "HIDE ALL COMMENTS");
+    }
+
+  });
+
+
 
 	}
 
