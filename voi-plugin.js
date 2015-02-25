@@ -13,6 +13,15 @@
             debate_form : null
         }, options);
 
+      //cookie
+
+      //var CookieSet = $.cookie('voi'); 
+
+      //if (CookieSet == null) { //check if voi cookie is set
+       // var timenow = $.now();
+       // $.cookie("voi", timenow, { expires : 365 }); //set cookie id voi to timestamp and to expire in 1 year
+      //}
+
     	//load fancybox script for debate form 
     	var css = $("<link>", { rel: "stylesheet", type: "text/css", href: "http://www.voteoverit.com/js/fancybox/source/jquery.fancybox.css?v=2.1.5" }).appendTo('head'); 
 
@@ -88,7 +97,7 @@
 	//for debate display
     $.fn.voi = function( options ) {
 
-    	var $this = $(this);
+    	$this = $(this);
 
     	var settings = $.extend({
             url      : null,
@@ -101,25 +110,11 @@
         $.post('http://www.voteoverit.com/connect/debate_display.php', 
     		{ token : settings.token,
     		  title : settings.url,
+          //cookie: $.cookie('voi'),
           user  : settings.users }).done(function(data) {
     		  	$this.html(data);
     	});    
 
-        //negative
-        $(document).on("click",".negButton", function () {
-            console.log('neg vote');
-			$.post('http://www.voteoverit.com/connect/api_hook.php', 
-    		  {token : settings.token,
-    		  title : settings.url,
-    		  vote: 0,
-    		  user: settings.users}).done(function(data) {
-console.log(data);
-    		  	$(".votebuttons").html(data);
-
-    		  });
-            
-            return;
-        });
 
   $(document).on("click", ".userCommentEdit", function() {
   //$(".userCommentEdit").click(function() {
@@ -266,7 +261,7 @@ var ele = $(this).attr('id').split('-');
 
   $(document).on('click', '.voi-plus', function() {
 
-  console.log('add comment vote');
+  		console.log('add comment vote');
 
       var id = $(this).attr("id").split("_")
       var elementID = id[1];
@@ -289,6 +284,39 @@ var ele = $(this).attr('id').split('-');
       });
 
    });  
+
+  function reload_vote_display(voteType) {
+
+  	  	console.log('reload called')
+
+  	$.post('http://www.voteoverit.com/connect/debate_display.php', 
+    		{ token : settings.token,
+    		  title : settings.url,
+          //cookie: $.cookie('voi'),
+          user  : settings.users }).done(function(data) {
+    		  	$this.html(data);
+    });   
+          console.log('after reload');
+
+  	//var total_votes = $("#total_votes").html();
+  	//var max_votes = $("#max_votes").html();
+  	//var pos_votes = $("#yay_percentage").html().replace('%', '');
+  	//var neg_votes = $("#nay_percentage").html().replace('%', '');
+///
+  //	$("#total_votes").html( parseInt(total_votes + 1) );
+
+  	//if(voteType == 'positive') {
+
+	//	$("#yay_percentage").html( (parseInt(total_votes + 1) * ( parseInt(pos_votes/100) ) ).toFixed() );
+
+  	//} else {
+
+  	//	$("#nay_percentage").html( (parseInt(total_votes + 1) * ( parseInt(neg_votes/100) ) ).toFixed() );
+
+
+  	///}
+  	
+  }
     
     $(document).on('click', '.voi-minus', function() {
 
@@ -316,9 +344,15 @@ var ele = $(this).attr('id').split('-');
      $(document).on('click', '.posButton', function() {
 
       var element = $(this).attr("id").split("_");
-      var id = element[2];
+      id = element[2];
+      $ele = $(this);
+      $("#current_vote").val('1');
+      $("#current_issue_id").val(id);
 
-    $.post('http://www.voteoverit.com/connect/api_hook.php', 
+
+    console.log('pos button clicked testing');
+
+    	$.post('http://www.voteoverit.com/connect/api_hook.php', 
              {token : settings.token,
               title : settings.url,
               vote: 1,
@@ -335,11 +369,13 @@ var ele = $(this).attr('id').split('-');
           $('.votingArea').prepend(data); ///append the html for them to add an email
 
         } else {
-
+console.log('saved');
+            reload_vote_display('positive');
                   //$("#message" ).show(1000, "swing", callbackMessage );  
-                  $("#bar_" + id).show();
-                  $("#neg_utton_" + id).remove();
-                  $this.css({"width" : "100%", "text-align" : "center"});
+            $("#bar_" + id).show();
+            $("#neg_button_" + id).remove();
+            $ele.css({"margin-top" : "11.5px", "width" : "100%", "text-align" : "center"});
+
           }
         }); 
 
@@ -350,6 +386,10 @@ var ele = $(this).attr('id').split('-');
 
         var element = $(this).attr("id").split("_");
         id = element[2];
+        $ele = $(this);
+        $("#current_vote").val('0');
+        $("#current_issue_id").val(id);
+
         console.log('neg buttonc licked');
     $.post('http://www.voteoverit.com/connect/api_hook.php', 
              {token : settings.token,
@@ -368,11 +408,12 @@ var ele = $(this).attr('id').split('-');
           $('.votingArea').prepend(data);  ///append the html for them to add an email
           
         } else {
-
+            reload_vote_display('negative');
+        	console.log('saved');
                  // $("#message").show(1000, "swing", callbackMessage );  
                   $("#bar_" + id).show();
                   $("#pos_button_" + id).remove();
-                  $this.css({"width" : "100%", "text-align" : "center"});
+                  $ele.css({"margin-top" : "11.5px", "width" : "100%", "text-align" : "center"});
           }
     }); 
 
@@ -386,20 +427,37 @@ var ele = $(this).attr('id').split('-');
     if ( $( $("#updates") ).prop( "checked" ) ) {
       var updates = 1;
     }
-
+    console.log(' save email clicked');
     $.post('http://www.voteoverit.com/connect/api_hook.php', 
         { update : updates,
           user_id : $("#user_id").val(),
-          email : $("#email").val()
+          email : $("#email").val(),
+          vote : $("#current_vote").val(),
+          issue_id : $("#current_issue_id").val()
           }).done(function(data) {
-
-            console.log(data);
+      console.log('return');
+      console.log(data);
       $(".signin").hide();
       $(".votebuttons").show();
+      $("#bar_" + id).show();
+
+      console.log('voted');
+      if($("#current_vote").val() == 1) {
+      	console.log('pos');
+      	$("#neg_button_" + $("#current_issue_id").val()).remove();
+      	$("#pos_button_" + $("#current_issue_id").val()).css({"margin-top" : "11.5px", "width" : "100%", "text-align" : "center"});
+
+      } else {
+      	console.log('neg');
+      	$("#pos_button_" + $("#current_issue_id").val()).remove();
+      	$("#neg_button_" + $("#current_issue_id").val()).css({"margin-top" : "11.5px", "width" : "100%", "text-align" : "center"});
+
+      }
 
     });
 
   });
+
 
   //for login info if user is not logged in. logged in is indicated by having a valid email
 
@@ -448,7 +506,79 @@ var ele = $(this).attr('id').split('-');
 
   });
 
+ //pagination
+ $(document).on('click', '.voi-circle-left', function() {
 
+ 	var page_num = parseInt( $("#page_number").val() );
+
+ 	if(page_num == 1) {
+
+ 		return false;
+
+ 	} else {
+
+ 		new_page_num = page_num - 1;
+ 		$("#page_number").val(parseInt(new_page_num));
+
+ 		console.log('page number called'+ new_page_num);
+ 		$.post('http://www.voteoverit.com/connect/debate_display.php', 
+ 			{page:new_page_num, 
+ 		     issue_id : $(this).data('issueid'), 
+ 		     user: settings.users
+ 		    }).done(function(data){
+
+ 			console.log(data);
+
+ 			if(data == 'no comments') {
+ 				$("#page_number").val(page_num);
+ 				return false;
+ 			} else {
+ 				$("#opinionslist").html(data);
+ 			}
+ 		});
+ 	}
+ });
+
+ $(document).on('click', '.voi-circle-right', function() {
+
+ 	var page_num = parseInt( $("#page_number").val() );
+
+ 	new_page_num = page_num + 1;
+
+ 	$("#page_number").val(parseInt(new_page_num));
+console.log('page:' + new_page_num);
+ 		$.post('http://www.voteoverit.com/connect/debate_display.php', 
+ 			{page:new_page_num, 
+ 		     issue_id : $(this).data('issueid'), 
+ 		     user: settings.users
+ 		    }).done(function(data){
+
+ 			console.log(data);
+
+ 			if(data == 'No Comments') {
+ 				$("#page_number").val(page_num);
+ 				return false;
+ 			} else {
+ 				$("#opinionslist").html(data);
+ 			}
+ 		});
+ });
+
+ $(document).on('click', '.suggest_link', function(e) {
+
+ 	$.post('http://www.voteoverit.com/connect/api_hook.php', {
+
+ 		link_type : $(this).data('linktype'),
+ 		link_url : $(this).attr('href'),
+ 		user : settings.users,
+ 		issue_id: $(this).data('issueid'),
+ 		from_url: window.location.href
+
+ 	}).done(function(data) {
+ 		console.log(data);
+ 	});
+
+ });
 
 	}
 
