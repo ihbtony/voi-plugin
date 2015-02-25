@@ -11,7 +11,12 @@ If you haven't already, create a debate at http://www.voteoverit.com/create_issu
 
 This plugin will access the voteoverit.com system and return an html element with matching debate content. See http://voteoverit.tk/connect/hook_test.html for an example.<br/>
 
+
 Example usage:
+
+<div id="voi_wrapper">
+
+</div>
 
 url - current url of your content. this is a unique parameter matched up with voi system. this is set up when debate is created. <br/>
 users - unique identifier for user. so as to provide unique votes on a per user basis<br/>
@@ -24,6 +29,15 @@ $('#voi_wrapper').voi({<br/>
 	});
 
 <br/>
+
+If you use WP and have a self hosted site, use <br/>
+
+    wp_register_script( 'custom-script', get_template_directory_uri() . '/js/custom-script.js', array( 'jquery' ) );
+ 
+    // For either a plugin or a theme, you can then enqueue the script:
+    wp_enqueue_script( 'custom-script' );
+    <br/>
+    
 please direct any questions to martin@voteoverit.com. Thanks!
 
 #added February 1, 2015
