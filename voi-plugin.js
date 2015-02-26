@@ -14,13 +14,12 @@
         }, options);
 
       //cookie
+      var CookieSet = $.cookie('voi'); 
 
-      //var CookieSet = $.cookie('voi'); 
-
-      //if (CookieSet == null) { //check if voi cookie is set
-       // var timenow = $.now();
-       // $.cookie("voi", timenow, { expires : 365 }); //set cookie id voi to timestamp and to expire in 1 year
-      //}
+      if (CookieSet == null) { //check if voi cookie is set
+        var timenow = $.now();
+        $.cookie("voi", timenow, { expires : 365 }); //set cookie id voi to timestamp and to expire in 1 year
+      }
 
     	//load fancybox script for debate form 
     	var css = $("<link>", { rel: "stylesheet", type: "text/css", href: "http://www.voteoverit.com/js/fancybox/source/jquery.fancybox.css?v=2.1.5" }).appendTo('head'); 
@@ -97,6 +96,7 @@
 	//for debate display
     $.fn.voi = function( options ) {
 
+
     	$this = $(this);
 
     	var settings = $.extend({
@@ -107,15 +107,42 @@
         }, options);
 
 
+      //user not set
+      if(settings.users == null) {
+
+        //get the cookie scripte from voi.com so we can start setting cookies. this will be our new unique user id.
+
+      $.getScript(
+          "http://www.voteoverit.com/js/jscookie.js",function(e) {
+
+      var CookieSet = $.cookie('voi'); 
+
+      if (CookieSet == null) { //check if voi cookie is set
+          var timenow = $.now();
+          $.cookie("voi", timenow, { expires: 365, path: '/' }); //set cookie id voi to timestamp and to expire in 1 year
+          user = $.cookie('voi');
+        } else {
+          user = $.cookie('voi');
+        }
+
+      });
+
+      } else {
+        user = settings.users;
+      }
+
+setTimeout(function() {
+      // Do something after 5 seconds
+
+      console.log('user:' + user);
         $.post('http://www.voteoverit.com/connect/debate_display.php', 
     		{ token : settings.token,
     		  title : settings.url,
-          //cookie: $.cookie('voi'),
-          user  : settings.users }).done(function(data) {
+          user  : user }).done(function(data) {
     		  	$this.html(data);
     	});    
-
-
+}, 3000);
+      //end cookie/users check
   $(document).on("click", ".userCommentEdit", function() {
   //$(".userCommentEdit").click(function() {
 
@@ -149,7 +176,7 @@ var ele = $(this).attr('id').split('-');
         id: ele[2],
         Updated: "",
         pollText : $("#comment_" + ele[2]).val(),
-        user : settings.users
+        user : user
 
       }).done(function(data) {
 
@@ -221,11 +248,11 @@ var ele = $(this).attr('id').split('-');
       issue_id = ele[1];
       vote = ele[2];
       $this = $(this);
-      console.log(issue_id + "\r\n" + 'vote:' + vote + "\r\n" + settings.users + "\r\n" + $("#comment_" + issue_id).val());
+      console.log(issue_id + "\r\n" + 'vote:' + vote + "\r\n" + user + "\r\n" + $("#comment_" + issue_id).val());
 
     $.post("http://www.voteoverit.com/API/polls/add", { 
 
-          user: settings.users,
+          user: user,
           issue_id: issue_id,
           Created : "", 
           pollText : $("#comment_" + issue_id).val(),
@@ -267,8 +294,8 @@ var ele = $(this).attr('id').split('-');
       var elementID = id[1];
       var $this = $(this);
       console.log(elementID + 'comment positive');
-      $.post("http://www.voteoverit.com/API/Polls/vote/1/" + elementID + "/" + settings.users, 
-      {   user: settings.users,
+      $.post("http://www.voteoverit.com/API/Polls/vote/1/" + elementID + "/" + user, 
+      {   user: user,
           id: elementID,
           vote: 1 }).done(function(data) {
 
@@ -293,7 +320,7 @@ var ele = $(this).attr('id').split('-');
     		{ token : settings.token,
     		  title : settings.url,
           //cookie: $.cookie('voi'),
-          user  : settings.users }).done(function(data) {
+          user  : user }).done(function(data) {
     		  	$this.html(data);
     });   
           console.log('after reload');
@@ -324,8 +351,8 @@ var ele = $(this).attr('id').split('-');
     var elementID = id[1];
     var $this = $(this);
             console.log(elementID);
-      $.post("http://www.voteoverit.com/API/Polls/vote/0/" + elementID + "/" + settings.users, 
-      {   user: settings.users,
+      $.post("http://www.voteoverit.com/API/Polls/vote/0/" + elementID + "/" + user, 
+      {   user: user,
           id: elementID,
           vote: 0 }).done(function(data) {
         console.log(data);
@@ -356,7 +383,7 @@ var ele = $(this).attr('id').split('-');
              {token : settings.token,
               title : settings.url,
               vote: 1,
-              user: settings.users}).done(function(data) {       
+              user: user}).done(function(data) {       
 
         if ( data == 'Already voted' || data == 'Vote Not Saved') {
             
@@ -395,7 +422,7 @@ console.log('saved');
              {token : settings.token,
               title : settings.url,
               vote: 0,
-              user: settings.users}).done(function(data) {       
+              user: user}).done(function(data) {       
 
         if ( data == 'Already voted' || data == 'Vote Not Saved') {
             
@@ -524,7 +551,7 @@ console.log('saved');
  		$.post('http://www.voteoverit.com/connect/debate_display.php', 
  			{page:new_page_num, 
  		     issue_id : $(this).data('issueid'), 
- 		     user: settings.users
+ 		     user: user
  		    }).done(function(data){
 
  			console.log(data);
@@ -550,7 +577,7 @@ console.log('page:' + new_page_num);
  		$.post('http://www.voteoverit.com/connect/debate_display.php', 
  			{page:new_page_num, 
  		     issue_id : $(this).data('issueid'), 
- 		     user: settings.users
+ 		     user: user
  		    }).done(function(data){
 
  			console.log(data);
@@ -570,7 +597,7 @@ console.log('page:' + new_page_num);
 
  		link_type : $(this).data('linktype'),
  		link_url : $(this).attr('href'),
- 		user : settings.users,
+ 		user : user,
  		issue_id: $(this).data('issueid'),
  		from_url: window.location.href
 
