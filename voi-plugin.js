@@ -60,15 +60,13 @@
                 $('#' + settings.debate_form.attr('id')).append('<p style="color:red">Please add a title</p>');
                 return false;
             }
-            //var data = $(this).serialize();
-            //console.log(data);
             //serialize form data, set create to 1 so we know what to do on hook
             var body = $("#description_background").val();
 
             body += '<br/>' + $("#description_questions").val();
 
             body += '<br/>' + $("#opinion").val();
-            console.log(body);
+
             $.post('http://www.voteoverit.com/connect/debate_display.php', 
                     { 
 
@@ -117,7 +115,6 @@
           user = $.cookie('voi');
         } else {
           user = $.cookie('voi');
-          console.log('user c 1 :' + user);
         }
 
       });
@@ -190,7 +187,6 @@ setTimeout(function() {
 
   //for remove button
     $(document).on("click", ".userCommentRemove", function() {
-      console.log('User comment remove');
       
       var ele = $(this).attr('id').split('-');
       $.post("http://www.voteoverit.com/API/polls/edit", { 
@@ -223,8 +219,6 @@ setTimeout(function() {
       issue_id = ele[1];
       vote = ele[2];
 
-      console.log(issue_id + "\r\n" + 'vote:' + vote + "\r\n" + user + "\r\n" + $("#comment_" + issue_id).val());
-
     $.post("http://www.voteoverit.com/API/polls/add", { 
 
           user: user,
@@ -238,7 +232,6 @@ setTimeout(function() {
         var return_data = $.parseJSON(data);
         PollID = return_data.PollID; //poll id from insert returned
         if(return_data.message != 'Problem saving opinion') {
-          console.log("comment saved");
 
           $("#bar_" + issue_id).append("<div class='userCommentDiv' id='userCommentDiv_" + PollID + "' style='display:inline-block;'><div class='debateImageDiv latter' style='margin-top:2px; float:left;'><img id='debateImage' src='http://www.voteoverit.com/member/profileImages/6307.jpg' style='height:40px;'/></div><div id='comment_" + issue_id + "' style='float:left;'><span class='userCommentText' id=''>" + $('#comment_' + issue_id).val() + "<font class=''></font> -  <font class=''> (ADDED) </font></span><textarea type='text' class='addCommentText' id='comment_" + PollID + "' style='display:none; height:78px; min-width:300px; max-width:300px; margin:0px 6px;'>" + $('#comment_' + issue_id).val() + "</textarea></div><div style='float:right;'><button class='userCommentEdit' id='comment-" + issue_id + "-" + PollID + "'>EDIT</button><br><button class='userCommentRemove' id='remove-" + issue_id + "-" + PollID + "' style=''>REMOVE</button></div><br></div>");
 
@@ -252,7 +245,6 @@ setTimeout(function() {
     });
 
   $(document).on("click", ".addCommentCancel", function() {
-    console.log('hide addCommentDiv');
     $(".addCommentText").val('');
     $(".addCommentDiv").hide();
   });
@@ -275,7 +267,7 @@ setTimeout(function() {
           vote: 1 }).done(function(data) {
 
                 if ((data) == "Already voted on this opinion!") {
-                    console.log('already voted');
+
                 } else {
 
             var current_count = parseInt( $this.next('span.commentStat').html().replace('+', '') );
@@ -307,15 +299,15 @@ setTimeout(function() {
     
     $(document).on('click', '.voi-minus', function() {
 
-    var id = $(this).attr("id").split("_")
-    var elementID = id[1];
-    var $this = $(this);
-            console.log(elementID);
+      var id = $(this).attr("id").split("_")
+      var elementID = id[1];
+      var $this = $(this);
+
       $.post("http://www.voteoverit.com/API/Polls/vote/0/" + elementID + "/" + user, 
       {   user: user,
           id: elementID,
           vote: 0 }).done(function(data) {
-        console.log(data);
+
         if ((data) == "Already voted on this opinion!") {
 
         } else {
@@ -486,14 +478,12 @@ setTimeout(function() {
  		new_page_num = page_num - 1;
  		$("#page_number").val(parseInt(new_page_num));
     $("#page_num_display").html(new_page_num);
- 		console.log('page number called'+ new_page_num);
+
  		$.post('http://www.voteoverit.com/connect/debate_display.php', 
  			{page:new_page_num, 
  		     issue_id : $(this).data('issueid'), 
  		     user: user
  		    }).done(function(data){
-
- 			console.log(data);
 
  			if(data == 'no comments') {
  				$("#page_number").val(page_num);
@@ -514,7 +504,6 @@ setTimeout(function() {
  	$("#page_number").val(parseInt(new_page_num));
   $("#page_num_display").html(new_page_num);
 
-console.log('page:' + new_page_num);
  		$.post('http://www.voteoverit.com/connect/debate_display.php', 
  			{page:new_page_num, 
  		     issue_id : $(this).data('issueid'), 
